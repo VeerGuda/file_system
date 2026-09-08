@@ -200,37 +200,38 @@ def find_subtree(nodes, target_pid):
 
     return None
 
-processes = get_processes()
+if __name__ == "__main__":
+    processes = get_processes()
 
-cpu_processes = top_cpu(processes, 10)
-mem_processes = top_mem(processes, 10)
+    cpu_processes = top_cpu(processes, 10)
+    mem_processes = top_mem(processes, 10)
 
-apps = group_by_application(processes)
+    apps = group_by_application(processes)
 
-cpu_apps = top_apps_cpu(apps, 10)
-mem_apps = top_apps_mem(apps, 10)
+    cpu_apps = top_apps_cpu(apps, 10)
+    mem_apps = top_apps_mem(apps, 10)
 
-print("\nTOP CPU PROCESSES")
-display_processes(cpu_processes)
+    print("\nTOP CPU PROCESSES")
+    display_processes(cpu_processes)
 
-print("\nTOP MEMORY PROCESSES")
-display_processes(mem_processes)
+    print("\nTOP MEMORY PROCESSES")
+    display_processes(mem_processes)
 
-print("\nTOP APPLICATIONS BY CPU")
-display_apps(cpu_apps)
+    print("\nTOP APPLICATIONS BY CPU")
+    display_apps(cpu_apps)
 
-print("\nTOP APPLICATIONS BY MEMORY")
-display_apps(mem_apps)
+    print("\nTOP APPLICATIONS BY MEMORY")
+    display_apps(mem_apps)
 
-print("\nPROCESS TREE: ")
+    print("\nPROCESS TREE: ")
 
-process_tree = create_process_tree(processes)
+    process_tree = create_process_tree(processes)
 
-for root in process_tree:
-    display_tree(root)
+    for root in process_tree:
+        display_tree(root)
 
-chrome_tree = find_subtree(process_tree, 30200)
+    chrome_tree = find_subtree(process_tree, 30200)
 
-print("\nChrome Tree:\n")
-if chrome_tree:
-    display_tree(chrome_tree)
+    print("\nChrome Tree:\n")
+    if chrome_tree:
+        display_tree(chrome_tree)

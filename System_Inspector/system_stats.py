@@ -75,17 +75,63 @@ def uptime():
 
 
 
-usage = disk_usage()
-print(f"Disk Usage: {usage:.1f}%")
+def get_system_stats():
+    """
+    Collects a structured snapshot of system hardware and OS metrics:
+    CPU usage %, detailed memory breakdown in bytes and GB, disk usage, and uptime.
+    """
+    cpu = cpu_usage()
+    mem_tuple = memory_usage()  # total, free, active, inactive, wired, compressed (in GB)
+    disk_pct = disk_usage()
+    days, hours, minutes = uptime()
 
-result = memory_usage()
-print(f"Total: {result[0]:.2f} GB")
-print(f"Free: {result[1]:.2f} GB")
-print(f"Active: {result[2]:.2f} GB")
-print(f"Inactive: {result[3]:.2f} GB")
-print(f"Wired: {result[4]:.2f} GB")
-print(f"Compressed: {result[5]:.2f} GB")
+    vfs = os.statvfs("/")
+    disk_total_bytes = vfs.f_blocks * vfs.f_frsize
+    disk_free_bytes = vfs.f_bavail * vfs.f_frsize
+    disk_used_bytes = disk_total_bytes - disk_free_bytes
 
-print(f"CPU Usage: {cpu_usage():.2f}%")
-days, hours, minutes = uptime()
-print(f"Uptime: {days} days, {hours} hours, {minutes} minutes")
+    return {
+        "cpu_percent": round(cpu, 2) if cpu is not None else 0.0,
+        "memory": {
+            "total_gb": round(mem_tuple[0], 2),
+            "free_gb": round(mem_tuple[1], 2),
+            "active_gb": round(mem_tuple[2], 2),
+            "inactive_gb": round(mem_tuple[3], 2),
+            "wired_gb": round(mem_tuple[4], 2),
+            "compressed_gb": round(mem_tuple[5], 2),
+            "used_gb": round(mem_tuple[0] - mem_tuple[1], 2),
+            "used_percent": round(((mem_tuple[0] - mem_tuple[1]) / mem_tuple[0]) * 100, 2) if mem_tuple[0] > 0 else 0.0
+        },
+        "disk": {
+            "total_bytes": disk_total_bytes,
+            "used_bytes": disk_used_bytes,
+            "free_bytes": disk_free_bytes,
+            "total_gb": round(disk_total_bytes / (1024 ** 3), 2),
+            "used_gb": round(disk_used_bytes / (1024 ** 3), 2),
+            "free_gb": round(disk_free_bytes / (1024 ** 3), 2),
+            "used_percent": round(disk_pct, 2)
+        },
+        "uptime": {
+            "days": days,
+            "hours": hours,
+            "minutes": minutes,
+            "formatted": f"{days} days, {hours} hours, {minutes} minutes"
+        }
+    }
+
+
+if __name__ == "__main__":
+    usage = disk_usage()
+    print(f"Disk Usage: {usage:.1f}%")
+
+    result = memory_usage()
+    print(f"Total: {result[0]:.2f} GB")
+    print(f"Free: {result[1]:.2f} GB")
+    print(f"Active: {result[2]:.2f} GB")
+    print(f"Inactive: {result[3]:.2f} GB")
+    print(f"Wired: {result[4]:.2f} GB")
+    print(f"Compressed: {result[5]:.2f} GB")
+
+    print(f"CPU Usage: {cpu_usage():.2f}%")
+    days, hours, minutes = uptime()
+    print(f"Uptime: {days} days, {hours} hours, {minutes} minutes")
